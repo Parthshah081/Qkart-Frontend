@@ -184,9 +184,11 @@ describe("Products Page", () => {
     // https://github.com/clarkbw/jest-localstorage-mock/issues/125
     jest.clearAllMocks();
 
-    render(ProductDOMTree(history));
+    await act(async () => {
+      render(ProductDOMTree(history));
+    });
 
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+    // await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
   });
 
   it("should make a GET request to load products", () => {

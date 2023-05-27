@@ -31,7 +31,7 @@ import ProductCard from "./ProductCard";
 const Products = () => {
    
   const {enqueueSnackbar} = useSnackbar()
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [filterProducts, setFilterProducts] = useState([])
   const [debounceTimeout, setDebounceTimeout] = useState(0);
@@ -78,16 +78,16 @@ const Products = () => {
    * }
    */
   const performAPICall = async () => {
-    setIsLoading(true);
     try{
+      setLoading(true);
       const response = await axios.get(`${config.endpoint}/products`)
       
-      setIsLoading(false);
+      setLoading(false);
       setProducts(response.data)
       setFilterProducts(response.data)
       return response.data
     }catch(error){
-    setIsLoading(false)
+    setLoading(false)
 
     if(error.response && error.response.status === 500) {
       enqueueSnackbar(error.response.data.message, {variant:'error'});
@@ -114,12 +114,15 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
+    setLoading(true)
     try{
-      const response = await axios.get(`${config.endpoint}/product/search?value=${text}`
+      const response = await axios.get(`${config.endpoint}/products/search?value=${text}`
       );
+      setLoading(false)
       setFilterProducts(response.data)
       return response.data
     }catch(error){
+      setLoading(false)
       if(error.response){
         if(error.response.status === 404){
           setFilterProducts([])
@@ -174,12 +177,12 @@ const Products = () => {
       <Header>
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
         <TextField
-        className='search-desktop'
-        size='small'
+        className="search-desktop"
+        size="small"
         InputProps={{
-          className:'search',
+          className:"search",
           endAdornment:(
-            <InputAdornment>
+            <InputAdornment position="end">
               <Search color='primary'/>
             </InputAdornment>
           ),
@@ -218,23 +221,23 @@ const Products = () => {
              </p>
            </Box>
            {isLoading ? (
-            <Box className='loading'>
+            <Box className="loading">
               <CircularProgress/>
-               <h4>Loading Products....</h4>
+              <h4>Loading Products....</h4>
             </Box>
            ):(
-             <Grid container marginY='1rem' paddingX='1rem' spacing={2}>
+             <Grid container marginY="1rem" paddingX="1rem" spacing={2}>
               {filterProducts.length ? (
                  filterProducts.map((product)=>(
-                  <Grid item xs={2} md={4} key={products._id}>
-                   <ProductCard
+                  <Grid item xs={2} md={3} key={products._id}>
+                   <ProductCard 
                    product={product}
                   />
                    
                   </Grid>
                  ))
               ): (
-                <Box className='loading'>
+                <Box className="loading">
                   <SentimentDissatisfied color='action'/>
                   <h4>No products found</h4>
                 </Box>
