@@ -29,7 +29,7 @@ import ProductCard from "./ProductCard";
 
 
 const Products = () => {
-   
+ 
   const {enqueueSnackbar} = useSnackbar()
   const [isLoading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
@@ -114,15 +114,12 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
-    setLoading(true)
     try{
       const response = await axios.get(`${config.endpoint}/products/search?value=${text}`
       );
-      setLoading(false)
       setFilterProducts(response.data)
       return response.data
     }catch(error){
-      setLoading(false)
       if(error.response){
         if(error.response.status === 404){
           setFilterProducts([])
@@ -166,7 +163,10 @@ const Products = () => {
 
 
     useEffect( ()=>{
-        performAPICall()
+       const onLoader = async() => {
+         await performAPICall();
+       }
+       onLoader();
     }, []);
 
 
