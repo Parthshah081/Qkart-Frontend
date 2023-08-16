@@ -20,7 +20,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
       {product.name}
     </Typography>
     <Typography paddingY="0.5rem" fontWeight="700">
-      {product.cost}
+      ${product.cost}
     </Typography>
     <Rating
   name="read-only"
