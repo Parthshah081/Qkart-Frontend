@@ -11,6 +11,7 @@ import { useHistory } from "react-router-dom";
 import "./Cart.css";
 
 // Definition of Data Structures usedmap
+// Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
  * 
@@ -90,6 +91,24 @@ export const getTotalCartValue = (items = []) => {
 };
 
 
+// TODO: CRIO_TASK_MODULE_CHECKOUT - Implement function to return total cart quantity
+/**
+ * Return the sum of quantities of all products added to the cart
+ *
+ * @param { Array.<CartItem> } items
+ *    Array of objects with complete data on products in cart
+ *
+ * @returns { Number }
+ *    Total quantity of products added to the cart
+ *
+ */
+export const getTotalItems = (items = []) => {
+  if(!items.length) return 0;
+  let itemTotal = items.map((item) => item.qty).reduce((total, n) => total + n);
+  return itemTotal
+};
+
+// TODO: CRIO_TASK_MODULE_CHECKOUT - Add static quantity view for Checkout page cart
 /**
  * Component to display the current quantity for a product and + and - buttons to update product quantity on cart
  * 
@@ -102,13 +121,19 @@ export const getTotalCartValue = (items = []) => {
  * @param {Function} handleDelete
  *    Handler function which reduces the quantity of a product in cart by 1
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
 const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  isReadOnly = false,
 }) => {
+  if(isReadOnly) return (
+    <Box>Qty:{value}</Box>
+  )
   return (
     <Stack direction="row" alignItems="center">
       <IconButton size="small" color="primary" onClick={handleDelete}>
@@ -179,6 +204,7 @@ const Cart = ({
   products,
   items = [],
   handleQuantity,
+  isReadOnly = false
 }) => {
   let history = useHistory()
   if (!items.length) {
@@ -219,20 +245,23 @@ const Cart = ({
             justifyContent="space-between"
             alignItems="center"
         >
+        {isReadOnly ? (
+         <Box fontSize="1rem">Qty:{item.qty}</Box>
+        ):(  
         <ItemQuantity
           value={item.qty}
           handleAdd={()=> handleQuantity(item.productId, item.qty + 1)}
           handleDelete={()=> handleQuantity(item.productId, item.qty - 1)}
         />
+        )}
         <Box padding="0.5rem" fontWeight="700">
             ${item.cost}
         </Box>
         </Box>
     </Box>
 </Box>
-        ))
+        ))}
 
-        }
         <Box
           padding="1rem"
           display="flex"
@@ -252,21 +281,43 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
-
-        <Box display="flex" justifyContent="flex-end" className="cart-footer">
-          <Button
-            color="primary"
-            variant="contained"
-            startIcon={<ShoppingCart />}
-            className="checkout-btn"
-            onClick = {() => {
-              history.push("/checkout")
-            }}
-          >
-            Checkout
-          </Button>
-        </Box>
+        {isReadOnly ? null : (
+           <Box display="flex" justifyContent="flex-end" className="cart-footer">
+           <Button
+             color="primary"
+             variant="contained"
+             startIcon={<ShoppingCart />}
+             className="checkout-btn"
+             onClick = {() => {
+               history.push("/checkout")
+             }}
+           >
+             Checkout
+           </Button>
+         </Box>
+        )}       
       </Box>
+      {isReadOnly && (
+        <Box className="cart" padding="1rem">
+          <h2>Order Details</h2>
+          <Box className="cart-row">
+            <p>Products</p>
+            <p>{getTotalItems(items)}</p>
+          </Box>
+          <Box className="cart-row">
+            <p>Subtotal</p>
+            <p>${getTotalCartValue(items)}</p>
+          </Box>
+          <Box className="cart-row">
+            <p>Shipping Charges</p>
+            <p>$0</p>
+          </Box>
+          <Box className="cart-row" fontSize="1.25rem" fontWeight="600">
+            <p>Total</p>
+            <p>${getTotalCartValue(items)}</p>
+          </Box>
+        </Box>
+      )}
     </>
   );
 };
